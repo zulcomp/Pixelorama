@@ -72,6 +72,5 @@ access = 2
 filters = PoolStringArray( "*shader" )
 current_dir = "/"
 current_path = "/"
-
 [connection signal="pressed" from="VBoxContainer/ChooseShader" to="." method="_on_ChooseShader_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]
