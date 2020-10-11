@@ -3,10 +3,19 @@ extends "res://src/Tools/Base.gd"
 
 var text_edit : TextEdit
 var text_edit_pos := Vector2.ZERO
+var text_size := 16
+
+onready var font_data : DynamicFontData = preload("res://assets/fonts/Roboto-Regular.ttf")
+onready var font := DynamicFont.new()
+
+
+func _ready() -> void:
+	font.font_data = font_data
+	font.size = text_size
 
 
 func _input(event : InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):
+	if event.is_action_pressed("enter"):
 		text_to_pixels()
 
 
@@ -53,7 +62,7 @@ func text_to_pixels() -> void:
 	var texture = ImageTexture.new()
 	texture.create_from_image(current_cel)
 	VisualServer.canvas_item_add_texture_rect(ci_rid, Rect2(Vector2(0, 0), size), texture)
-	var font : Font = load("res://assets/fonts/Roboto-Regular.tres")
+
 	font.draw(ci_rid, text_edit_pos, text_edit.text, tool_slot.color)
 
 	VisualServer.viewport_set_update_mode(vp, VisualServer.VIEWPORT_UPDATE_ONCE)
@@ -74,3 +83,8 @@ func text_to_pixels() -> void:
 
 	text_edit.queue_free()
 	text_edit = null
+
+
+func _on_TextSizeSpinBox_value_changed(value : int) -> void:
+	text_size = value
+	font.size = text_size
