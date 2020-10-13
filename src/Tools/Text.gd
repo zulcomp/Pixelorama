@@ -14,14 +14,10 @@ func _ready() -> void:
 	font.size = text_size
 
 
-func _input(event : InputEvent) -> void:
-	if event.is_action_pressed("enter"):
-		text_to_pixels()
-
-
 func draw_start(position : Vector2) -> void:
 	if text_edit:
-		return
+		text_to_pixels()
+
 	text_edit = TextEdit.new()
 	text_edit.text = ""
 	text_edit.rect_position = get_viewport().get_mouse_position()
@@ -41,6 +37,11 @@ func draw_end(_position : Vector2) -> void:
 func text_to_pixels() -> void:
 	if !text_edit:
 		return
+	if !text_edit.text:
+		text_edit.queue_free()
+		text_edit = null
+		return
+
 	var project : Project = Global.current_project
 	var size : Vector2 = project.size
 	var current_cel = project.frames[project.current_frame].cels[project.current_layer].image
