@@ -30,6 +30,7 @@ func draw_start(position : Vector2) -> void:
 	text_edit.rect_position = get_viewport().get_mouse_position()
 	text_edit_pos = position
 	text_edit.rect_min_size = Vector2(100, 60)
+	text_edit.add_font_override("font", font)
 	Global.control.add_child(text_edit)
 
 
