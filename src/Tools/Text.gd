@@ -1,15 +1,22 @@
 extends "res://src/Tools/Base.gd"
 
 
+var loaded_fonts := [
+	preload("res://assets/fonts/Roboto-Regular.ttf"),
+	preload("res://assets/fonts/CJK/NotoSansCJKtc-Regular.otf")
+]
 var text_edit : TextEdit
 var text_edit_pos := Vector2.ZERO
 var text_size := 16
+var font_data : DynamicFontData
 
-onready var font_data : DynamicFontData = preload("res://assets/fonts/Roboto-Regular.ttf")
 onready var font := DynamicFont.new()
+onready var font_optionbutton : OptionButton = $FontOptionButton
+onready var font_filedialog : FileDialog = $FontFileDialog
 
 
 func _ready() -> void:
+	font_data = loaded_fonts[0]
 	font.font_data = font_data
 	font.size = text_size
 
@@ -89,3 +96,32 @@ func text_to_pixels() -> void:
 func _on_TextSizeSpinBox_value_changed(value : int) -> void:
 	text_size = value
 	font.size = text_size
+
+
+func _on_FontOptionButton_item_selected(index : int):
+	if index >= loaded_fonts.size():
+		return
+	font_data = loaded_fonts[index]
+	font.font_data = font_data
+
+
+func _on_LoadFontButton_pressed() -> void:
+	font_filedialog.popup_centered()
+	Global.dialog_open(true)
+
+
+func _on_FontFileDialog_files_selected(paths : PoolStringArray) -> void:
+	for path in paths:
+		var file = DynamicFont.new()
+		file = load(path)
+		if !file:
+			print("Failed ", path)
+			continue
+		loaded_fonts.append(file)
+		var file_name = path.get_file().get_basename()
+		font_optionbutton.add_item(file_name)
+		print("Success ", path)
+
+
+func _on_FontFileDialog_popup_hide() -> void:
+	Global.dialog_open(false)
