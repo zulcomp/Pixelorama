@@ -13,6 +13,7 @@ var font_data : DynamicFontData
 onready var font := DynamicFont.new()
 onready var font_optionbutton : OptionButton = $FontOptionButton
 onready var font_filedialog : FileDialog = $FontFileDialog
+onready var text_edit_stylebox : StyleBox = StyleBoxEmpty.new()
 
 
 func _ready() -> void:
@@ -23,15 +24,22 @@ func _ready() -> void:
 
 func draw_start(position : Vector2) -> void:
 	if text_edit:
+		var text_edit_rect := Rect2(text_edit.rect_position, text_edit.rect_size)
+		if text_edit_rect.has_point(position):
+			return
 		text_to_pixels()
 
 	text_edit = TextEdit.new()
 	text_edit.text = ""
-	text_edit.rect_position = get_viewport().get_mouse_position()
 	text_edit_pos = position
-	text_edit.rect_min_size = Vector2(100, 60)
+	text_edit.rect_min_size = Vector2(32, max(32, font.get_height()))
+	text_edit.rect_position = position - Vector2(0, text_edit.rect_min_size.y / 2)
 	text_edit.add_font_override("font", font)
-	Global.control.add_child(text_edit)
+	text_edit.add_constant_override("line_spacing", 0)
+	text_edit.add_stylebox_override("normal", text_edit_stylebox)
+	text_edit.add_color_override("font_color", tool_slot.color)
+	text_edit.connect("text_changed", self, "_textedit_text_changed")
+	Global.canvas.add_child(text_edit)
 
 
 func draw_move(_position : Vector2) -> void:
@@ -72,7 +80,11 @@ func text_to_pixels() -> void:
 	texture.create_from_image(current_cel)
 	VisualServer.canvas_item_add_texture_rect(ci_rid, Rect2(Vector2(0, 0), size), texture)
 
-	font.draw(ci_rid, text_edit_pos, text_edit.text, tool_slot.color)
+	var texts := text_edit.text.split("\n")
+	var pos := text_edit.rect_position + Vector2(0, font.get_ascent())
+	for text in texts:
+		font.draw(ci_rid, pos, text, tool_slot.color)
+		pos.y += font.get_height()
 
 	VisualServer.viewport_set_update_mode(vp, VisualServer.VIEWPORT_UPDATE_ONCE)
 	VisualServer.viewport_set_vflip(vp, true)
@@ -94,16 +106,25 @@ func text_to_pixels() -> void:
 	text_edit = null
 
 
+func _textedit_text_changed() -> void:
+	if !text_edit:
+		return
+	text_edit.rect_size.x = 16 + font.get_string_size(text_edit.get_line(textedit_get_max_line(text_edit))).x
+	text_edit.rect_size.y = text_edit.get_line_count() * font.get_height()
+
+
 func _on_TextSizeSpinBox_value_changed(value : int) -> void:
 	text_size = value
 	font.size = text_size
+	_textedit_text_changed()
 
 
-func _on_FontOptionButton_item_selected(index : int):
+func _on_FontOptionButton_item_selected(index : int) -> void:
 	if index >= loaded_fonts.size():
 		return
 	font_data = loaded_fonts[index]
 	font.font_data = font_data
+	_textedit_text_changed()
 
 
 func _on_LoadFontButton_pressed() -> void:
@@ -126,3 +147,15 @@ func _on_FontFileDialog_files_selected(paths : PoolStringArray) -> void:
 
 func _on_FontFileDialog_popup_hide() -> void:
 	Global.dialog_open(false)
+
+
+func textedit_get_max_line(_texte : TextEdit) -> int:
+	var max_line : int = 0
+	var max_string : int = _texte.get_line(0).length()
+	for i in _texte.get_line_count():
+		var line := _texte.get_line(i)
+		if line.length() > max_string:
+			max_string = line.length()
+			max_line = i
+
+	return max_line
