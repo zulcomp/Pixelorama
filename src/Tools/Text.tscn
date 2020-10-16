@@ -69,8 +69,37 @@ access = 2
 filters = PoolStringArray( "*.ttf", "*.otf" )
 current_dir = "/Users/Overloaded/Documents/#Orama Stuff/Pixelorama/#Main Repos/Pixelorama"
 current_path = "/Users/Overloaded/Documents/#Orama Stuff/Pixelorama/#Main Repos/Pixelorama/"
+
+[node name="OutlineLabel" type="Label" parent="." index="10"]
+margin_top = 130.0
+margin_right = 116.0
+margin_bottom = 144.0
+text = "Outline:"
+align = 1
+
+[node name="OutlineContainer" type="HBoxContainer" parent="." index="11"]
+margin_top = 148.0
+margin_right = 116.0
+margin_bottom = 172.0
+alignment = 1
+
+[node name="OutlineColorPickerButton" type="ColorPickerButton" parent="OutlineContainer" index="0"]
+margin_left = 7.0
+margin_right = 31.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 24, 0 )
+mouse_default_cursor_shape = 2
+color = Color( 1, 1, 1, 1 )
+
+[node name="OutlineSpinBox" type="SpinBox" parent="OutlineContainer" index="1"]
+margin_left = 35.0
+margin_right = 109.0
+margin_bottom = 24.0
+mouse_default_cursor_shape = 2
 [connection signal="item_selected" from="FontOptionButton" to="." method="_on_FontOptionButton_item_selected"]
 [connection signal="value_changed" from="TextSizeSpinBox" to="." method="_on_TextSizeSpinBox_value_changed"]
 [connection signal="pressed" from="LoadFontButton" to="." method="_on_LoadFontButton_pressed"]
 [connection signal="files_selected" from="FontFileDialog" to="." method="_on_FontFileDialog_files_selected"]
 [connection signal="popup_hide" from="FontFileDialog" to="." method="_on_FontFileDialog_popup_hide"]
+[connection signal="color_changed" from="OutlineContainer/OutlineColorPickerButton" to="." method="_on_OutlineColorPickerButton_color_changed"]
+[connection signal="value_changed" from="OutlineContainer/OutlineSpinBox" to="." method="_on_OutlineSpinBox_value_changed"]

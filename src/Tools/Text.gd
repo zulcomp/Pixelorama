@@ -94,7 +94,7 @@ func text_to_pixels() -> void:
 	VisualServer.free_rid(canvas)
 	VisualServer.free_rid(ci_rid)
 	viewport_texture.convert(Image.FORMAT_RGBA8)
-	print(viewport_texture.get_size())
+
 	if !viewport_texture.is_empty():
 		Global.canvas.handle_undo("Draw")
 		current_cel.unlock()
@@ -159,3 +159,11 @@ func textedit_get_max_line(_texte : TextEdit) -> int:
 			max_line = i
 
 	return max_line
+
+
+func _on_OutlineColorPickerButton_color_changed(color : Color) -> void:
+	font.outline_color = color
+
+
+func _on_OutlineSpinBox_value_changed(value : int) -> void:
+	font.outline_size = value
