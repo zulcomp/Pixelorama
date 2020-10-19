@@ -5,21 +5,80 @@ var loaded_fonts := [
 	preload("res://assets/fonts/Roboto-Regular.ttf"),
 	preload("res://assets/fonts/CJK/NotoSansCJKtc-Regular.otf")
 ]
+var loaded_fonts_paths := [] # String[]
 var text_edit : TextEdit
 var text_edit_pos := Vector2.ZERO
-var text_size := 16
-var font_data : DynamicFontData
 
+var font_data_index := 0
+var text_size := 16
+var outline_color := Color.white
+var outline_size := 0
+
+onready var font_data : DynamicFontData = preload("res://assets/fonts/Roboto-Regular.ttf")
 onready var font := DynamicFont.new()
 onready var font_optionbutton : OptionButton = $FontOptionButton
 onready var font_filedialog : FileDialog = $FontFileDialog
-onready var text_edit_stylebox : StyleBox = StyleBoxEmpty.new()
+onready var text_edit_stylebox : StyleBox = preload("res://assets/themes/text_tool_stylebox.tres")
 
 
-func _ready() -> void:
-	font_data = loaded_fonts[0]
+#func _ready() -> void:
+#	font.font_data = font_data
+#	font.size = text_size
+
+
+func get_config() -> Dictionary:
+	return {
+		"font_data_index" : font_data_index,
+		"text_size" : text_size,
+		"outline_color" : outline_color,
+		"outline_size" : outline_size,
+		"loaded_fonts_paths" : loaded_fonts_paths
+	}
+
+
+func set_config(config : Dictionary) -> void:
+	# Handle loaded fonts
+	loaded_fonts_paths = config.get("loaded_fonts_paths", loaded_fonts_paths)
+
+	var failed_paths := [] # For invalid font paths
+	for path in loaded_fonts_paths:
+		var dir := Directory.new()
+		if !dir.file_exists(path):
+			print("Failed to load ", path)
+			failed_paths.append(path)
+			continue
+		var file = DynamicFontData.new()
+		file = load(path)
+		loaded_fonts.append(file)
+		var file_name = path.get_file().get_basename()
+		font_optionbutton.add_item(file_name)
+		print("Loaded ", path, " succesfully")
+
+	if failed_paths:
+		print(failed_paths)
+		for path in failed_paths:
+			loaded_fonts_paths.erase(path)
+		save_config()
+
+	font_data_index = config.get("font_data_index", font_data_index)
+	if font_data_index >= loaded_fonts.size():
+		font_data_index = 0
+	text_size = config.get("text_size", text_size)
+	outline_color = config.get("outline_color", outline_color)
+	outline_size = config.get("outline_size", outline_size)
+
+	font_data = loaded_fonts[font_data_index]
 	font.font_data = font_data
 	font.size = text_size
+	font.outline_color = outline_color
+	font.outline_size = outline_size
+
+
+func update_config() -> void:
+	font_optionbutton.selected = loaded_fonts.find(font_data)
+	$TextSizeSpinBox.value = text_size
+	$OutlineContainer/OutlineColorPickerButton.color = outline_color
+	$OutlineContainer/OutlineSpinBox.value = outline_size
 
 
 func draw_start(position : Vector2) -> void:
@@ -81,7 +140,7 @@ func text_to_pixels() -> void:
 	VisualServer.canvas_item_add_texture_rect(ci_rid, Rect2(Vector2(0, 0), size), texture)
 
 	var texts := text_edit.text.split("\n")
-	var pos := text_edit.rect_position + Vector2(0, font.get_ascent())
+	var pos := text_edit.rect_position + Vector2(1, font.get_ascent())
 	for text in texts:
 		font.draw(ci_rid, pos, text, tool_slot.color)
 		pos.y += font.get_height()
@@ -117,14 +176,17 @@ func _on_TextSizeSpinBox_value_changed(value : int) -> void:
 	text_size = value
 	font.size = text_size
 	_textedit_text_changed()
+	save_config()
 
 
 func _on_FontOptionButton_item_selected(index : int) -> void:
 	if index >= loaded_fonts.size():
 		return
+	font_data_index = index
 	font_data = loaded_fonts[index]
 	font.font_data = font_data
 	_textedit_text_changed()
+	save_config()
 
 
 func _on_LoadFontButton_pressed() -> void:
@@ -134,15 +196,18 @@ func _on_LoadFontButton_pressed() -> void:
 
 func _on_FontFileDialog_files_selected(paths : PoolStringArray) -> void:
 	for path in paths:
-		var file = DynamicFont.new()
-		file = load(path)
-		if !file:
-			print("Failed ", path)
+		var dir := Directory.new()
+		if !dir.file_exists(path):
+			print("Failed to load ", path)
 			continue
+		var file = DynamicFontData.new()
+		file = load(path)
 		loaded_fonts.append(file)
 		var file_name = path.get_file().get_basename()
 		font_optionbutton.add_item(file_name)
-		print("Success ", path)
+		print("Loaded ", path, " succesfully")
+		loaded_fonts_paths.append(path)
+	save_config()
 
 
 func _on_FontFileDialog_popup_hide() -> void:
@@ -162,8 +227,12 @@ func textedit_get_max_line(_texte : TextEdit) -> int:
 
 
 func _on_OutlineColorPickerButton_color_changed(color : Color) -> void:
+	outline_color = color
 	font.outline_color = color
+	save_config()
 
 
 func _on_OutlineSpinBox_value_changed(value : int) -> void:
+	outline_size = value
 	font.outline_size = value
+	save_config()
