@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://src/Tools/Base.tscn" type="PackedScene" id=1]
+[ext_resource path="res://src/Tools/BaseTool.tscn" type="PackedScene" id=1]
 [ext_resource path="res://src/Tools/Text.gd" type="Script" id=2]
 
 [node name="ToolOptions" instance=ExtResource( 1 )]
@@ -67,8 +67,8 @@ resizable = true
 mode = 1
 access = 2
 filters = PoolStringArray( "*.ttf", "*.otf" )
-current_dir = "/Users/Overloaded/Documents/#Orama Stuff/Pixelorama/#Main Repos/Pixelorama"
-current_path = "/Users/Overloaded/Documents/#Orama Stuff/Pixelorama/#Main Repos/Pixelorama/"
+current_dir = "/home/overloaded/Documents/Orama/Pixelorama"
+current_path = "/home/overloaded/Documents/Orama/Pixelorama/"
 
 [node name="OutlineLabel" type="Label" parent="." index="10"]
 margin_top = 130.0
@@ -96,6 +96,7 @@ margin_left = 35.0
 margin_right = 109.0
 margin_bottom = 24.0
 mouse_default_cursor_shape = 2
+
 [connection signal="item_selected" from="FontOptionButton" to="." method="_on_FontOptionButton_item_selected"]
 [connection signal="value_changed" from="TextSizeSpinBox" to="." method="_on_TextSizeSpinBox_value_changed"]
 [connection signal="pressed" from="LoadFontButton" to="." method="_on_LoadFontButton_pressed"]

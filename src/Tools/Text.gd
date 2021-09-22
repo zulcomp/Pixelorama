@@ -1,9 +1,9 @@
-extends "res://src/Tools/Base.gd"
+extends "res://src/Tools/BaseTool.gd"
 
 
 var loaded_fonts := [
 	preload("res://assets/fonts/Roboto-Regular.ttf"),
-	preload("res://assets/fonts/CJK/NotoSansCJKtc-Regular.otf")
+	preload("res://assets/fonts/CJK/DroidSansFallback.ttf")
 ]
 var loaded_fonts_paths := [] # String[]
 var text_edit : TextEdit
