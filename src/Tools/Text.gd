@@ -117,24 +117,21 @@ func text_to_pixels() -> void:
 	var undo_data := _get_undo_data()
 	var project: Project = Global.current_project
 	var size: Vector2 = project.size
-	var current_cel = project.frames[project.current_frame].cels[project.current_layer].image
-	var viewport_texture := Image.new()
+	var image: Image = project.frames[project.current_frame].cels[project.current_layer].image
 
-	var vp = VisualServer.viewport_create()
-	var canvas = VisualServer.canvas_create()
+	var vp := VisualServer.viewport_create()
+	var canvas := VisualServer.canvas_create()
 	VisualServer.viewport_attach_canvas(vp, canvas)
 	VisualServer.viewport_set_size(vp, size.x, size.y)
 	VisualServer.viewport_set_disable_3d(vp, true)
 	VisualServer.viewport_set_usage(vp, VisualServer.VIEWPORT_USAGE_2D)
-	VisualServer.viewport_set_hdr(vp, true)
 	VisualServer.viewport_set_active(vp, true)
 	VisualServer.viewport_set_transparent_background(vp, true)
 
-	var ci_rid = VisualServer.canvas_item_create()
+	var ci_rid := VisualServer.canvas_item_create()
 	VisualServer.viewport_set_canvas_transform(vp, canvas, Transform())
 	VisualServer.canvas_item_set_parent(ci_rid, canvas)
-	var texture = ImageTexture.new()
-	texture.create_from_image(current_cel)
+	var texture := VisualServer.texture_create_from_image(image, 0)
 	VisualServer.canvas_item_add_texture_rect(ci_rid, Rect2(Vector2(0, 0), size), texture)
 
 	var texts := text_edit.text.split("\n")
@@ -146,16 +143,18 @@ func text_to_pixels() -> void:
 	VisualServer.viewport_set_update_mode(vp, VisualServer.VIEWPORT_UPDATE_ONCE)
 	VisualServer.viewport_set_vflip(vp, true)
 	VisualServer.force_draw(false)
+	var viewport_texture := Image.new()
 	viewport_texture = VisualServer.texture_get_data(VisualServer.viewport_get_texture(vp))
 	VisualServer.free_rid(vp)
 	VisualServer.free_rid(canvas)
 	VisualServer.free_rid(ci_rid)
+	VisualServer.free_rid(texture)
 	viewport_texture.convert(Image.FORMAT_RGBA8)
 
 	text_edit.queue_free()
 	text_edit = null
 	if !viewport_texture.is_empty():
-		current_cel.copy_from(viewport_texture)
+		image.copy_from(viewport_texture)
 		commit_undo("Draw", undo_data)
 
 
