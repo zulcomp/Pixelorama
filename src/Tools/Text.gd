@@ -3,7 +3,7 @@ extends "res://src/Tools/BaseTool.gd"
 
 var loaded_fonts := [
 	preload("res://assets/fonts/Roboto-Regular.ttf"),
-	preload("res://assets/fonts/CJK/DroidSansFallback.ttf")
+	preload("res://assets/fonts/DroidSansFallback.ttf")
 ]
 var loaded_fonts_paths := [] # String[]
 var text_edit : TextEdit
@@ -37,6 +37,7 @@ func get_config() -> Dictionary:
 
 
 func set_config(config : Dictionary) -> void:
+	yield(get_tree(), "idle_frame")
 	# Handle loaded fonts
 	loaded_fonts_paths = config.get("loaded_fonts_paths", loaded_fonts_paths)
 
@@ -75,6 +76,7 @@ func set_config(config : Dictionary) -> void:
 
 
 func update_config() -> void:
+	yield(get_tree(), "idle_frame")
 	font_optionbutton.selected = loaded_fonts.find(font_data)
 	$TextSizeSpinBox.value = text_size
 	$OutlineContainer/OutlineColorPickerButton.color = outline_color
@@ -117,6 +119,7 @@ func text_to_pixels() -> void:
 		text_edit = null
 		return
 
+	var undo_data := _get_undo_data()
 	var project : Project = Global.current_project
 	var size : Vector2 = project.size
 	var current_cel = project.frames[project.current_frame].cels[project.current_layer].image
@@ -154,15 +157,42 @@ func text_to_pixels() -> void:
 	VisualServer.free_rid(ci_rid)
 	viewport_texture.convert(Image.FORMAT_RGBA8)
 
-	if !viewport_texture.is_empty():
-		Global.canvas.handle_undo("Draw")
-		current_cel.unlock()
-		current_cel.copy_from(viewport_texture)
-		current_cel.lock()
-		Global.canvas.handle_redo("Draw")
-
 	text_edit.queue_free()
 	text_edit = null
+	if !viewport_texture.is_empty():
+		current_cel.copy_from(viewport_texture)
+		commit_undo("Draw", undo_data)
+
+
+func commit_undo(action: String, undo_data: Dictionary) -> void:
+	var redo_data := _get_undo_data()
+	var project: Project = Global.current_project
+	var frame := -1
+	var layer := -1
+	if Global.animation_timer.is_stopped() and project.selected_cels.size() == 1:
+		frame = project.current_frame
+		layer = project.current_layer
+
+	project.undos += 1
+	project.undo_redo.create_action(action)
+	for image in redo_data:
+		project.undo_redo.add_do_property(image, "data", redo_data[image])
+		image.unlock()
+	for image in undo_data:
+		project.undo_redo.add_undo_property(image, "data", undo_data[image])
+	project.undo_redo.add_do_method(Global, "undo_or_redo", false, frame, layer)
+	project.undo_redo.add_undo_method(Global, "undo_or_redo", true, frame, layer)
+	project.undo_redo.commit_action()
+
+
+func _get_undo_data() -> Dictionary:
+	var data := {}
+	var images := _get_selected_draw_images()
+	for image in images:
+		image.unlock()
+		data[image] = image.data
+		image.lock()
+	return data
 
 
 func _textedit_text_changed() -> void:

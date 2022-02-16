@@ -67,6 +67,7 @@ resizable = true
 mode = 1
 access = 2
 filters = PoolStringArray( "*.ttf", "*.otf" )
+show_hidden_files = true
 current_dir = "/home/overloaded/Documents/Orama/Pixelorama"
 current_path = "/home/overloaded/Documents/Orama/Pixelorama/"
 
