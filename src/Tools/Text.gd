@@ -263,3 +263,7 @@ func _on_OutlineSpinBox_value_changed(value: int) -> void:
 	outline_size = value
 	font.outline_size = value
 	save_config()
+
+
+func _exit_tree() -> void:
+	text_to_pixels()
