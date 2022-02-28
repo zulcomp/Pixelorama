@@ -6,22 +6,14 @@
 [node name="ToolOptions" instance=ExtResource( 1 )]
 script = ExtResource( 2 )
 
-[node name="PixelPerfect" parent="." index="1"]
-visible = false
-
-[node name="EmptySpacer" parent="." index="2"]
-visible = false
-margin_top = 18.0
-margin_bottom = 30.0
-
-[node name="FontLabel" type="Label" parent="." index="3"]
+[node name="FontLabel" type="Label" parent="." index="1"]
 margin_top = 18.0
 margin_right = 116.0
 margin_bottom = 32.0
 text = "Font:"
 align = 1
 
-[node name="FontOptionButton" type="OptionButton" parent="." index="4"]
+[node name="FontOptionButton" type="OptionButton" parent="." index="2"]
 margin_top = 36.0
 margin_right = 116.0
 margin_bottom = 56.0
@@ -30,14 +22,14 @@ text = "Roboto"
 items = [ "Roboto", null, false, 0, null, "NotoSansCJK", null, false, 1, null ]
 selected = 0
 
-[node name="TextSizeLabel" type="Label" parent="." index="5"]
+[node name="TextSizeLabel" type="Label" parent="." index="3"]
 margin_top = 60.0
 margin_right = 116.0
 margin_bottom = 74.0
 text = "Text size:"
 align = 1
 
-[node name="TextSizeSpinBox" type="SpinBox" parent="." index="6"]
+[node name="TextSizeSpinBox" type="SpinBox" parent="." index="4"]
 margin_top = 78.0
 margin_right = 116.0
 margin_bottom = 102.0
@@ -46,14 +38,14 @@ min_value = 1.0
 max_value = 128.0
 value = 16.0
 
-[node name="LoadFontButton" type="Button" parent="." index="7"]
+[node name="LoadFontButton" type="Button" parent="." index="5"]
 margin_top = 106.0
 margin_right = 116.0
 margin_bottom = 126.0
 mouse_default_cursor_shape = 2
 text = "Load Font"
 
-[node name="FontFileDialog" type="FileDialog" parent="." index="8"]
+[node name="FontFileDialog" type="FileDialog" parent="." index="6"]
 margin_right = 400.0
 margin_bottom = 400.0
 rect_min_size = Vector2( 400, 400 )
@@ -66,14 +58,14 @@ show_hidden_files = true
 current_dir = "/home/overloaded/Documents/Orama/Pixelorama"
 current_path = "/home/overloaded/Documents/Orama/Pixelorama/"
 
-[node name="OutlineLabel" type="Label" parent="." index="9"]
+[node name="OutlineLabel" type="Label" parent="." index="7"]
 margin_top = 130.0
 margin_right = 116.0
 margin_bottom = 144.0
 text = "Outline:"
 align = 1
 
-[node name="OutlineContainer" type="HBoxContainer" parent="." index="10"]
+[node name="OutlineContainer" type="HBoxContainer" parent="." index="8"]
 margin_top = 148.0
 margin_right = 116.0
 margin_bottom = 172.0
