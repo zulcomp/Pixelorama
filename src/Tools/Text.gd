@@ -16,10 +16,6 @@ onready var font_optionbutton: OptionButton = $FontOptionButton
 onready var font_filedialog: FileDialog = $FontFileDialog
 onready var text_edit_stylebox: StyleBox = preload("res://assets/themes/text_tool_stylebox.tres")
 
-#func _ready() -> void:
-#	font.font_data = font_data
-#	font.size = text_size
-
 
 func get_config() -> Dictionary:
 	return {
@@ -43,7 +39,7 @@ func set_config(config: Dictionary) -> void:
 			print("Failed to load ", path)
 			failed_paths.append(path)
 			continue
-		var file = DynamicFontData.new()
+		var file := DynamicFontData.new()
 		file = load(path)
 		loaded_fonts.append(file)
 		var file_name = path.get_file().get_basename()
